@@ -9,14 +9,28 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
+    "@lexical/code": "^0.16.1",
+    "@lexical/hashtag": "^0.16.1",
+    "@lexical/react": "^0.16.1",
+    "@lexical/selection": "^0.16.1",
+    "@lexical/table": "^0.16.1",
+    "@mui/icons-material": "^5.16.4",
+    "@mui/material": "^5.16.4",
+    "emoji-mart": "^5.6.0",
+    "marked": "^13.0.2",
+    "next": "14.2.5",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.5"
+    "react-color": "^2.19.3",
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react-dom": "^18",
+    "typescript": "^5"
   }
 }

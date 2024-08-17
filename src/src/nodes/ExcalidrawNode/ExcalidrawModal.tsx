@@ -221,7 +221,16 @@ export default function ExcalidrawModal({
   };
 
   return createPortal(
-    <div className="ExcalidrawModal__overlay" role="dialog">
+    <div
+      className="ExcalidrawModal__overlay"
+      role="dialog"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: "-10px",
+      }}
+    >
       <div
         className="ExcalidrawModal__modal"
         ref={excaliDrawModelRef}

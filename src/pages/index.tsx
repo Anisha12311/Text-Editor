@@ -18,8 +18,7 @@ import { TableContext } from "../src/plugins/TablePlugin";
 import PlaygroundEditorTheme from "../src/themes/PlaygroundEditorTheme";
 import { FlashMessageContext } from "../src/context/FlashMessageContext";
 import { Box } from "@mui/material";
-import Image from "next/image";
-import img from "../images/text.png";
+
 export interface VTextEditorProps {
   handleHtmlStringChange: (data: any) => void;
   initialContent?: string;

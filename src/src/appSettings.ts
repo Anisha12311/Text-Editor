@@ -1,18 +1,11 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-'use client'
+"use client";
 
 import { CAN_USE_WINDOW } from "../shared/src/canUseDOM";
 
-const hostName = CAN_USE_WINDOW &&  window.location.hostname;
+const hostName = CAN_USE_WINDOW && window.location.hostname;
 export const isDevPlayground: boolean =
-  hostName !== 'playground.lexical.dev' &&
-  hostName !== 'lexical-playground.vercel.app';
+  hostName !== "playground.lexical.dev" &&
+  hostName !== "lexical-playground.vercel.app";
 
 export const DEFAULT_SETTINGS = {
   disableBeforeInput: false,

@@ -1,15 +1,9 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-import {$patchStyleText} from '@lexical/selection';
-import {$getSelection, LexicalEditor} from 'lexical';
-import * as React from 'react';
+import { Icons } from "@/src/themes/Toolbar.styled";
+import { $patchStyleText } from "@lexical/selection";
+import { $getSelection, LexicalEditor } from "lexical";
+import * as React from "react";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 const MIN_ALLOWED_FONT_SIZE = 8;
 const MAX_ALLOWED_FONT_SIZE = 72;
@@ -41,7 +35,7 @@ export default function FontSize({
    */
   const calculateNextFontSize = (
     currentFontSize: number,
-    updateType: updateFontSizeType | null,
+    updateType: updateFontSizeType | null
   ) => {
     if (!updateType) {
       return currentFontSize;
@@ -113,7 +107,7 @@ export default function FontSize({
         prevFontSize = prevFontSize.slice(0, -2);
         const nextFontSize = calculateNextFontSize(
           Number(prevFontSize),
-          updateType,
+          updateType
         );
         return `${nextFontSize}px`;
       };
@@ -123,25 +117,25 @@ export default function FontSize({
           const selection = $getSelection();
           if (selection !== null) {
             $patchStyleText(selection, {
-              'font-size': newFontSize || getNextFontSize,
+              "font-size": newFontSize || getNextFontSize,
             });
           }
         }
       });
     },
-    [editor],
+    [editor]
   );
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const inputValueNumber = Number(inputValue);
 
-    if (['e', 'E', '+', '-'].includes(e.key) || isNaN(inputValueNumber)) {
+    if (["e", "E", "+", "-"].includes(e.key) || isNaN(inputValueNumber)) {
       e.preventDefault();
-      setInputValue('');
+      setInputValue("");
       return;
     }
     setInputChangeFlag(true);
-    if (e.key === 'Enter' || e.key === 'Tab' || e.key === 'Escape') {
+    if (e.key === "Enter" || e.key === "Tab" || e.key === "Escape") {
       e.preventDefault();
 
       updateFontSizeByInputValue(inputValueNumber);
@@ -149,19 +143,19 @@ export default function FontSize({
   };
 
   const handleInputBlur = () => {
-    if (inputValue !== '' && inputChangeFlag) {
+    if (inputValue !== "" && inputChangeFlag) {
       const inputValueNumber = Number(inputValue);
       updateFontSizeByInputValue(inputValueNumber);
     }
   };
 
   const handleButtonClick = (updateType: updateFontSizeType) => {
-    if (inputValue !== '') {
+    if (inputValue !== "") {
       const nextFontSize = calculateNextFontSize(
         Number(inputValue),
-        updateType,
+        updateType
       );
-      updateFontSizeInSelection(String(nextFontSize) + 'px', null);
+      updateFontSizeInSelection(String(nextFontSize) + "px", null);
     } else {
       updateFontSizeInSelection(null, updateType);
     }
@@ -176,7 +170,7 @@ export default function FontSize({
     }
 
     setInputValue(String(updatedFontSize));
-    updateFontSizeInSelection(String(updatedFontSize) + 'px', null);
+    updateFontSizeInSelection(String(updatedFontSize) + "px", null);
     setInputChangeFlag(false);
   };
 
@@ -184,25 +178,36 @@ export default function FontSize({
     setInputValue(selectionFontSize);
   }, [selectionFontSize]);
 
+  console.log("disable", disabled);
   return (
     <>
-      <button
-        type="button"
-        disabled={
-          disabled ||
-          (selectionFontSize !== '' &&
-            Number(inputValue) <= MIN_ALLOWED_FONT_SIZE)
+      <Icons
+        isEditable={
+          disabled === false
+            ? true
+            : false ||
+              (selectionFontSize !== "" &&
+                Number(inputValue) <= MIN_ALLOWED_FONT_SIZE)
         }
         onClick={() => handleButtonClick(updateFontSizeType.decrement)}
-        className="toolbar-item font-decrement">
-        <i className="format minus-icon" />
-      </button>
+      >
+        <RemoveIcon sx={{ width: "20px", height: "20px" }} />
+      </Icons>
 
       <input
+        style={{
+          marginLeft: "3px",
+          width: "24px",
+          height: "24px",
+          borderRadius: "50%",
+          justifyContent: "center",
+          display: "flex",
+          alignItems: "center",
+          textAlign: "center",
+        }}
         type="number"
         value={inputValue}
         disabled={disabled}
-        className="toolbar-item font-size-input"
         min={MIN_ALLOWED_FONT_SIZE}
         max={MAX_ALLOWED_FONT_SIZE}
         onChange={(e) => setInputValue(e.target.value)}
@@ -210,17 +215,18 @@ export default function FontSize({
         onBlur={handleInputBlur}
       />
 
-      <button
-        type="button"
-        disabled={
-          disabled ||
-          (selectionFontSize !== '' &&
-            Number(inputValue) >= MAX_ALLOWED_FONT_SIZE)
+      <Icons
+        isEditable={
+          disabled === false
+            ? true
+            : false ||
+              (selectionFontSize !== "" &&
+                Number(inputValue) >= MAX_ALLOWED_FONT_SIZE)
         }
         onClick={() => handleButtonClick(updateFontSizeType.increment)}
-        className="toolbar-item font-increment">
-        <i className="format add-icon" />
-      </button>
+      >
+        <AddIcon sx={{ width: "20px", height: "20px" }} />
+      </Icons>
     </>
   );
 }

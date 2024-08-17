@@ -41,6 +41,12 @@ import { INSERT_PAGE_BREAK } from "../PageBreakPlugin";
 import { InsertPollDialog } from "../PollPlugin";
 import { InsertTableDialog } from "../TablePlugin";
 
+
+
+
+
+
+
 class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
   title: string;

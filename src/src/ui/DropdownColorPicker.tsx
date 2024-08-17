@@ -1,15 +1,7 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+import * as React from "react";
 
-import * as React from 'react';
-
-import ColorPicker from './ColorPicker';
-import DropDown from './DropDown';
+import ColorPicker from "./ColorPicker";
+import DropDown from "./DropDown";
 
 type Props = {
   disabled?: boolean;
@@ -21,6 +13,7 @@ type Props = {
   stopCloseOnClickSelf?: boolean;
   color: string;
   onChange?: (color: string, skipHistoryStack: boolean) => void;
+  Icon?: any;
 };
 
 export default function DropdownColorPicker({
@@ -28,13 +21,16 @@ export default function DropdownColorPicker({
   stopCloseOnClickSelf = true,
   color,
   onChange,
+  Icon,
   ...rest
 }: Props) {
   return (
     <DropDown
       {...rest}
+      Icon={Icon}
       disabled={disabled}
-      stopCloseOnClickSelf={stopCloseOnClickSelf}>
+      stopCloseOnClickSelf={stopCloseOnClickSelf}
+    >
       <ColorPicker color={color} onChange={onChange} />
     </DropDown>
   );

@@ -1,24 +1,21 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-import {LexicalEditor} from 'lexical';
-import * as React from 'react';
-import {useState} from 'react';
+import { LexicalEditor } from "lexical";
+import * as React from "react";
+import { useState } from "react";
 
-import Button from '../../ui/Button';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
-import {INSERT_LAYOUT_COMMAND} from './LayoutPlugin';
-
+import Button from "../../ui/Button";
+import DropDown, { DropDownItem } from "../../ui/DropDown";
+import { INSERT_LAYOUT_COMMAND } from "./LayoutPlugin";
+import { DialogActions } from "../../../src/ui/Dialog";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 const LAYOUTS = [
-  {label: '2 columns (equal width)', value: '1fr 1fr'},
-  {label: '2 columns (25% - 75%)', value: '1fr 3fr'},
-  {label: '3 columns (equal width)', value: '1fr 1fr 1fr'},
-  {label: '3 columns (25% - 50% - 25%)', value: '1fr 2fr 1fr'},
-  {label: '4 columns (equal width)', value: '1fr 1fr 1fr 1fr'},
+  { label: "2 columns (equal width)", value: "1fr 1fr" },
+  { label: "2 columns (25% - 75%)", value: "1fr 3fr" },
+  { label: "3 columns (equal width)", value: "1fr 1fr 1fr" },
+  { label: "3 columns (25% - 50% - 25%)", value: "1fr 2fr 1fr" },
+  { label: "4 columns (equal width)", value: "1fr 1fr 1fr 1fr" },
 ];
 
 export default function InsertLayoutDialog({
@@ -36,21 +33,49 @@ export default function InsertLayoutDialog({
     onClose();
   };
 
+  const handleChange = (event) => {
+    setLayout(event.target.value);
+  };
   return (
     <>
-      <DropDown
+      {/* <DropDown
         buttonClassName="toolbar-item dialog-dropdown"
-        buttonLabel={buttonLabel}>
-        {LAYOUTS.map(({label, value}) => (
+        buttonLabel={buttonLabel}
+      >
+        {LAYOUTS.map(({ label, value }) => (
           <DropDownItem
             key={value}
             className="item"
-            onClick={() => setLayout(value)}>
-            <span className="text">{label}</span>
+            onClick={() => setLayout(value)}
+          >
+            <span className="text" style={{ marginBottom: "10px" }}>
+              {label}
+            </span>
           </DropDownItem>
         ))}
-      </DropDown>
-      <Button onClick={onClick}>Insert</Button>
+      </DropDown> */}
+
+      <FormControl sx={{ m: 1, width: 300, mt: 3 }}>
+        <Select
+          value={layout}
+          onChange={handleChange}
+          input={<OutlinedInput />}
+          displayEmpty
+          inputProps={{ "aria-label": "Without label" }}
+        >
+          {LAYOUTS.map(({ label, value }) => (
+            <MenuItem key={value} value={value}>
+              <span className="text" style={{ marginBottom: "10px" }}>
+                {label}
+              </span>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <DialogActions data-test-id="table-model-confirm-insert">
+        <Button onClick={onClick}>Insert</Button>
+      </DialogActions>
     </>
   );
 }

@@ -1,11 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -14,14 +6,14 @@ import type {
   NodeKey,
   SerializedLexicalNode,
   Spread,
-} from 'lexical';
+} from "lexical";
 
-import katex from 'katex';
-import {$applyNodeReplacement, DecoratorNode, DOMExportOutput} from 'lexical';
-import * as React from 'react';
-import {Suspense} from 'react';
+import katex from "katex";
+import { $applyNodeReplacement, DecoratorNode, DOMExportOutput } from "lexical";
+import * as React from "react";
+import { Suspense } from "react";
 
-const EquationComponent = React.lazy(() => import('./EquationComponent'));
+const EquationComponent = React.lazy(() => import("./EquationComponent"));
 
 export type SerializedEquationNode = Spread<
   {
@@ -32,17 +24,18 @@ export type SerializedEquationNode = Spread<
 >;
 
 function $convertEquationElement(
-  domNode: HTMLElement,
+  domNode: HTMLElement
 ): null | DOMConversionOutput {
-  let equation = domNode.getAttribute('data-lexical-equation');
-  const inline = domNode.getAttribute('data-lexical-inline') === 'true';
+  let equation = domNode.getAttribute("data-lexical-equation");
+  const inline = domNode.getAttribute("data-lexical-inline") === "true";
   // Decode the equation from base64
-  const utf8Decode = (str: string) => decodeURIComponent(escape(atob(str || '')));
+  const utf8Decode = (str: string) =>
+    decodeURIComponent(escape(atob(str || "")));
 
-  equation = utf8Decode(equation || '');
+  equation = utf8Decode(equation || "");
   if (equation) {
     const node = $createEquationNode(equation, inline);
-    return {node};
+    return { node };
   }
 
   return null;
@@ -53,7 +46,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
   __inline: boolean;
 
   static getType(): string {
-    return 'equation';
+    return "equation";
   }
 
   static clone(node: EquationNode): EquationNode {
@@ -69,7 +62,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
   static importJSON(serializedNode: SerializedEquationNode): EquationNode {
     const node = $createEquationNode(
       serializedNode.equation,
-      serializedNode.inline,
+      serializedNode.inline
     );
     return node;
   }
@@ -78,40 +71,40 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     return {
       equation: this.getEquation(),
       inline: this.__inline,
-      type: 'equation',
+      type: "equation",
       version: 1,
     };
   }
 
   createDOM(_config: EditorConfig): HTMLElement {
-    const element = document.createElement(this.__inline ? 'span' : 'div');
+    const element = document.createElement(this.__inline ? "span" : "div");
     // EquationNodes should implement `user-action:none` in their CSS to avoid issues with deletion on Android.
-    element.className = 'editor-equation';
+    element.className = "editor-equation";
     return element;
   }
 
   exportDOM(): DOMExportOutput {
-    const element = document.createElement(this.__inline ? 'span' : 'div');
+    const element = document.createElement(this.__inline ? "span" : "div");
     // Encode the equation as base64 to avoid issues with special characters
     const utf8Encode = (str: string) => btoa(unescape(encodeURIComponent(str)));
     const equation = utf8Encode(this.__equation);
-    element.setAttribute('data-lexical-equation', equation);
-    element.setAttribute('data-lexical-inline', `${this.__inline}`);
+    element.setAttribute("data-lexical-equation", equation);
+    element.setAttribute("data-lexical-inline", `${this.__inline}`);
     katex.render(this.__equation, element, {
       displayMode: !this.__inline, // true === block display //
-      errorColor: '#cc0000',
-      output: 'html',
-      strict: 'warn',
+      errorColor: "#cc0000",
+      output: "html",
+      strict: "warn",
       throwOnError: false,
       trust: false,
     });
-    return {element};
+    return { element };
   }
 
   static importDOM(): DOMConversionMap | null {
     return {
       div: (domNode: HTMLElement) => {
-        if (!domNode.hasAttribute('data-lexical-equation')) {
+        if (!domNode.hasAttribute("data-lexical-equation")) {
           return null;
         }
         return {
@@ -120,7 +113,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
         };
       },
       span: (domNode: HTMLElement) => {
-        if (!domNode.hasAttribute('data-lexical-equation')) {
+        if (!domNode.hasAttribute("data-lexical-equation")) {
           return null;
         }
         return {
@@ -163,15 +156,15 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
 }
 
 export function $createEquationNode(
-  equation = '',
-  inline = false,
+  equation = "",
+  inline = false
 ): EquationNode {
   const equationNode = new EquationNode(equation, inline);
   return $applyNodeReplacement(equationNode);
 }
 
 export function $isEquationNode(
-  node: LexicalNode | null | undefined,
+  node: LexicalNode | null | undefined
 ): node is EquationNode {
   return node instanceof EquationNode;
 }

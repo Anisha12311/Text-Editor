@@ -1,7 +1,7 @@
-'use client'
-import * as React from 'react'
+"use client";
+import * as React from "react";
 
-import type {LexicalEditor} from 'lexical';
+import type { LexicalEditor } from "lexical";
 
 // import {$createCodeNode, $isCodeNode} from '@lexical/code';
 import {
@@ -10,48 +10,56 @@ import {
   importFile,
   SerializedDocument,
   serializedDocumentFromEditorState,
-} from '@lexical/file';
+} from "@lexical/file";
 // import {
 //   $convertFromMarkdownString,
 //   $convertToMarkdownString,
 // } from '@lexical/markdown';
-import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {mergeRegister} from '@lexical/utils';
-import {CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND} from '@lexical/yjs';
+import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { mergeRegister } from "@lexical/utils";
+import { CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND } from "@lexical/yjs";
 import {
   $getRoot,
   $isParagraphNode,
   CLEAR_EDITOR_COMMAND,
   CLEAR_HISTORY_COMMAND,
   COMMAND_PRIORITY_EDITOR,
-} from 'lexical';
-import { useEffect, useState} from 'react';
+} from "lexical";
+import { useEffect, useState } from "react";
 
-import {INITIAL_SETTINGS} from '../../appSettings';
-import useFlashMessage from '../../hooks/useFlashMessage';
-import useModal from '../../hooks/useModal';
-import Button from '../../ui/Button';
-import {docFromHash, docToHash} from '../../utils/docSerialization';
+import { INITIAL_SETTINGS } from "../../appSettings";
+import useFlashMessage from "../../hooks/useFlashMessage";
+import useModal from "../../hooks/useModal";
+import Button from "../../ui/Button";
+import { docFromHash, docToHash } from "../../utils/docSerialization";
 // import {PLAYGROUND_TRANSFORMERS} from '../MarkdownTransformers';
 import {
   SPEECH_TO_TEXT_COMMAND,
   SUPPORT_SPEECH_RECOGNITION,
-} from '../SpeechToTextPlugin';
-import { CAN_USE_WINDOW } from '../../../shared/src/canUseDOM';
-import {$generateHtmlFromNodes } from "@lexical/html";
-
+} from "../SpeechToTextPlugin";
+import { CAN_USE_WINDOW } from "../../../shared/src/canUseDOM";
+import { Icons, IconsBottom, LightTooltip } from "@/src/themes/Toolbar.styled";
+import MicIcon from "@mui/icons-material/Mic";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+import ShareIcon from "@mui/icons-material/Share";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import * as marked from "marked";
 
 async function sendEditorState(editor: LexicalEditor): Promise<void> {
   const stringifiedEditorState = JSON.stringify(editor.getEditorState());
   try {
-    await fetch('http://localhost:1235/setEditorState', {
+    await fetch("http://localhost:1235/setEditorState", {
       body: stringifiedEditorState,
       headers: {
-        Accept: 'application/json',
-        'Content-type': 'application/json',
+        Accept: "application/json",
+        "Content-type": "application/json",
       },
-      method: 'POST',
+      method: "POST",
     });
   } catch {
     // NO-OP
@@ -62,29 +70,29 @@ async function validateEditorState(editor: LexicalEditor): Promise<void> {
   const stringifiedEditorState = JSON.stringify(editor.getEditorState());
   let response = null;
   try {
-    response = await fetch('http://localhost:1235/validateEditorState', {
+    response = await fetch("http://localhost:1235/validateEditorState", {
       body: stringifiedEditorState,
       headers: {
-        Accept: 'application/json',
-        'Content-type': 'application/json',
+        Accept: "application/json",
+        "Content-type": "application/json",
       },
-      method: 'POST',
+      method: "POST",
     });
   } catch {
     // NO-OP
   }
   if (response !== null && response.status === 403) {
     throw new Error(
-      'Editor state validation failed! Server did not accept changes.',
+      "Editor state validation failed! Server did not accept changes."
     );
   }
 }
 
 async function shareDoc(doc: SerializedDocument): Promise<void> {
-  const url = new URL(CAN_USE_WINDOW ?window.location.toString() : '');
+  const url = new URL(CAN_USE_WINDOW ? window.location.toString() : "");
   url.hash = await docToHash(doc);
   const newUrl = url.toString();
-  window.history.replaceState({}, '', newUrl);
+  window.history.replaceState({}, "", newUrl);
   await window.navigator.clipboard.writeText(newUrl);
 }
 
@@ -96,13 +104,15 @@ export default function ActionsPlugin(): JSX.Element {
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [modal, showModal] = useModal();
   const showFlashMessage = useFlashMessage();
-  const {isCollabActive} = useCollaborationContext();
+  const fileInputRef = React.useRef(null);
+
+  const { isCollabActive } = useCollaborationContext();
   useEffect(() => {
     if (INITIAL_SETTINGS.isCollab) {
       return;
     }
     docFromHash(window.location.hash).then((doc) => {
-      if (doc && doc.source === 'Playground') {
+      if (doc && doc.source === "Playground") {
         editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
       }
@@ -120,71 +130,40 @@ export default function ActionsPlugin(): JSX.Element {
           setConnected(isConnected);
           return false;
         },
-        COMMAND_PRIORITY_EDITOR,
-      ),
+        COMMAND_PRIORITY_EDITOR
+      )
     );
   }, [editor]);
 
   useEffect(() => {
-    return editor.registerUpdateListener(
-      ({dirtyElements, tags}) => {
-        // If we are in read only mode, send the editor state
-        // to server and ask for validation if possible.
-        if (
-          !isEditable &&
-          dirtyElements.size > 0 &&
-          !tags.has('historic') &&
-          !tags.has('collaboration')
-        ) {
-          validateEditorState(editor);
-        }
-        editor.getEditorState().read(() => {
-          const root = $getRoot();
-          const children = root.getChildren();
+    return editor.registerUpdateListener(({ dirtyElements, tags }) => {
+      if (
+        !isEditable &&
+        dirtyElements.size > 0 &&
+        !tags.has("historic") &&
+        !tags.has("collaboration")
+      ) {
+        validateEditorState(editor);
+      }
+      editor.getEditorState().read(() => {
+        const root = $getRoot();
+        const children = root.getChildren();
 
-          if (children.length > 1) {
-            setIsEditorEmpty(false);
+        if (children.length > 1) {
+          setIsEditorEmpty(false);
+        } else {
+          if ($isParagraphNode(children[0])) {
+            const paragraphChildren = children[0].getChildren();
+            setIsEditorEmpty(paragraphChildren.length === 0);
           } else {
-            if ($isParagraphNode(children[0])) {
-              const paragraphChildren = children[0].getChildren();
-              setIsEditorEmpty(paragraphChildren.length === 0);
-            } else {
-              setIsEditorEmpty(false);
-            }
+            setIsEditorEmpty(false);
           }
-        });
-      },
-    );
+        }
+      });
+    });
   }, [editor, isEditable]);
 
-  // const handleMarkdownToggle = useCallback(() => {
-  //   editor.update(() => {
-  //     const root = $getRoot();
-  //     const firstChild = root.getFirstChild();
-  //     if ($isCodeNode(firstChild) && firstChild.getLanguage() === 'markdown') {
-  //       $convertFromMarkdownString(
-  //         firstChild.getTextContent(),
-  //         PLAYGROUND_TRANSFORMERS,
-  //         undefined, // node
-  //         shouldPreserveNewLinesInMarkdown,
-  //       );
-  //     } else {
-  //       const markdown = $convertToMarkdownString(
-  //         PLAYGROUND_TRANSFORMERS,
-  //         undefined, //node
-  //         shouldPreserveNewLinesInMarkdown,
-  //       );
-  //       root
-  //         .clear()
-  //         .append(
-  //           $createCodeNode('markdown').append($createTextNode(markdown)),
-  //         );
-  //     }
-  //   });
-  // }, [editor, shouldPreserveNewLinesInMarkdown]);
-
   const hanldleExport = () => {
- 
     editor.update(() => {
       const htmlString = $generateHtmlFromNodes(editor, null);
       downloadHTMLFile(
@@ -192,8 +171,6 @@ export default function ActionsPlugin(): JSX.Element {
         `VTextEditor_${new Date().toISOString()}.html`
       );
     });
-   
-
   };
 
   const downloadHTMLFile = (htmlString: string, fileName: string) => {
@@ -207,130 +184,147 @@ export default function ActionsPlugin(): JSX.Element {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+  const importHTML = (htmlString: any) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "text/html");
+    editor.update(() => {
+      const nodes = $generateNodesFromDOM(editor, doc);
+      const root = $getRoot();
+      root.clear();
+      root.append(...nodes);
+    });
+  };
 
-  // function downloadFile(csvData, filename) {
-  //   console.log("download file")
-  //   const url = window.URL.createObjectURL(
-  //     csvData instanceof Blob ? csvData : new Blob([csvData]),
-  //   );
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.setAttribute("download", filename);
-  //   document.body.appendChild(link);
-  //   link.click();
-  
-  //   window.URL.revokeObjectURL(url);
-  //   document.body.removeChild(link);
-  // }
+  const importMarkdown = (markdownContent: any) => {
+    const htmlContent = marked.parse(markdownContent);
+    importHTML(htmlContent);
+  };
+  const handleFileSelect = (event: any) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const fileContent = e.target.result;
+        if (file.name.endsWith(".html")) {
+          importHTML(fileContent);
+        } else if (file.name.endsWith(".md")) {
+          importMarkdown(fileContent);
+        } else {
+          console.error("Unsupported file type");
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
 
-  const hanldleWord = () => {
-  }
+  const handleFileSelects = () => {
+    if (fileInputRef.current) {
+      (fileInputRef.current as HTMLInputElement).click();
+    }
+  };
+
   return (
-    <div className="actions">
-      <button className = "action-button " onClick = {hanldleExport}>Export to Html</button>
-      <button  className = "action-button "  onClick = {hanldleWord}>  Export to Word</button>
-
+    <div
+      className="actions"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingBottom: "10px",
+        paddingRight: "5px",
+      }}
+    >
       {SUPPORT_SPEECH_RECOGNITION && (
-        <button
+        <IconsBottom
+          isEditable={!isSpeechToText}
+          isActive={isSpeechToText}
           onClick={() => {
             editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
             setIsSpeechToText(!isSpeechToText);
           }}
-          className={
-            'action-button action-button-mic ' +
-            (isSpeechToText ? 'active' : '')
-          }
-          title="Speech To Text"
-          aria-label={`${
-            isSpeechToText ? 'Enable' : 'Disable'
-          } speech to text`}>
-          <i className="mic" />
-        </button>
+        >
+          <LightTooltip placement="top" title="Speech To Text">
+            <MicIcon sx={{ width: "24px", height: "24px" }} />
+          </LightTooltip>
+        </IconsBottom>
       )}
-      <button
-        className="action-button import"
-        onClick={() => importFile(editor)}
-        title="Import"
-        aria-label="Import editor state from JSON">
-        <i className="import" />
-      </button>
-      <button
-        className="action-button export"
-        onClick={() =>
-          exportFile(editor, {
-            fileName: `Playground ${new Date().toISOString()}`,
-            source: 'Playground',
-          })
-        }
-        title="Export"
-        aria-label="Export editor state to JSON">
-        <i className="export" />
-      </button>
-      <button
-        className="action-button share"
-        disabled={isCollabActive || INITIAL_SETTINGS.isCollab}
+
+      <IconsBottom onClick={handleFileSelects}>
+        <LightTooltip placement="top" title="Import Html/md">
+          <FileUploadOutlinedIcon sx={{ width: "24px", height: "24px" }} />
+        </LightTooltip>
+      </IconsBottom>
+
+      <IconsBottom onClick={hanldleExport}>
+        <LightTooltip placement="top" title="Export">
+          <FileDownloadOutlinedIcon sx={{ width: "24px", height: "24px" }} />
+        </LightTooltip>
+      </IconsBottom>
+
+      <IconsBottom
+        isActive={isCollabActive || INITIAL_SETTINGS.isCollab}
         onClick={() =>
           shareDoc(
             serializedDocumentFromEditorState(editor.getEditorState(), {
-              source: 'Playground',
-            }),
+              source: "Playground",
+            })
           ).then(
-            () => showFlashMessage('URL copied to clipboard'),
-            () => showFlashMessage('URL could not be copied to clipboard'),
+            () => showFlashMessage("URL copied to clipboard"),
+            () => showFlashMessage("URL could not be copied to clipboard")
           )
         }
-        title="Share"
-        aria-label="Share Playground link to current editor state">
-        <i className="share" />
-      </button>
-      <button
-        className="action-button clear"
-        disabled={isEditorEmpty}
+      >
+        <LightTooltip placement="top" title="Share">
+          <ShareIcon sx={{ width: "24px", height: "24px" }} />
+        </LightTooltip>
+      </IconsBottom>
+
+      <IconsBottom
         onClick={() => {
-          showModal('Clear editor', (onClose) => (
-            <ShowClearDialog editor={editor} onClose={onClose} />
-          ));
+          if (!isEditorEmpty) {
+            showModal("Clear editor", (onClose) => (
+              <ShowClearDialog editor={editor} onClose={onClose} />
+            ));
+          }
         }}
-        title="Clear"
-        aria-label="Clear editor contents">
-        <i className="clear" />
-      </button>
-      <button
-        className={`action-button ${!isEditable ? 'unlock' : 'lock'}`}
+        isEditable={!isEditorEmpty}
+        disabled={isEditorEmpty}
+      >
+        <LightTooltip placement="top" title="Clear">
+          <DeleteIcon sx={{ width: "24px", height: "24px" }} />
+        </LightTooltip>
+      </IconsBottom>
+
+      <IconsBottom
         onClick={() => {
-          // Send latest editor state to commenting validation server
           if (isEditable) {
             sendEditorState(editor);
           }
           editor.setEditable(!editor.isEditable());
         }}
-        title="Read-Only Mode"
-        aria-label={`${!isEditable ? 'Unlock' : 'Lock'} read-only mode`}>
-        <i className={!isEditable ? 'unlock' : 'lock'} />
-      </button>
-      {/* <button
-        className="action-button"
-        onClick={handleMarkdownToggle}
-        title="Convert From Markdown"
-        aria-label="Convert from markdown">
-        <i className="markdown" />
-      </button> */}
-      {isCollabActive && (
-        <button
-          className="action-button connect"
-          onClick={() => {
-            editor.dispatchCommand(TOGGLE_CONNECT_COMMAND, !connected);
-          }}
-          title={`${
-            connected ? 'Disconnect' : 'Connect'
-          } Collaborative Editing`}
-          aria-label={`${
-            connected ? 'Disconnect from' : 'Connect to'
-          } a collaborative editing server`}>
-          <i className={connected ? 'disconnect' : 'connect'} />
-        </button>
-      )}
+      >
+        <LightTooltip
+          placement="top"
+          title={isEditable ? "Read mode" : "Write mode"}
+        >
+          {isEditable ? (
+            <LockIcon sx={{ width: "24px", height: "24px" }} />
+          ) : (
+            <LockOpenIcon sx={{ width: "24px", height: "24px" }} />
+          )}
+        </LightTooltip>
+      </IconsBottom>
+
       {modal}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".html, .md"
+        style={{ display: "none" }}
+        id="file-upload"
+        onChange={handleFileSelect}
+      />
     </div>
   );
 }
@@ -351,14 +345,16 @@ function ShowClearDialog({
             editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
             editor.focus();
             onClose();
-          }}>
+          }}
+        >
           Clear
-        </Button>{' '}
+        </Button>{" "}
         <Button
           onClick={() => {
             editor.focus();
             onClose();
-          }}>
+          }}
+        >
           Cancel
         </Button>
       </div>

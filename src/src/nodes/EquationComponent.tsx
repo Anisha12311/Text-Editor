@@ -1,13 +1,5 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {mergeRegister} from '@lexical/utils';
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { mergeRegister } from "@lexical/utils";
 import {
   $getNodeByKey,
   $getSelection,
@@ -16,14 +8,14 @@ import {
   KEY_ESCAPE_COMMAND,
   NodeKey,
   SELECTION_CHANGE_COMMAND,
-} from 'lexical';
-import * as React from 'react';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {ErrorBoundary} from 'react-error-boundary';
+} from "lexical";
+import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
-import EquationEditor from '../ui/EquationEditor';
-import KatexRenderer from '../ui/KatexRenderer';
-import {$isEquationNode} from './EquationNode';
+import EquationEditor from "../ui/EquationEditor";
+import KatexRenderer from "../ui/KatexRenderer";
+import { $isEquationNode } from "./EquationNode";
 
 type EquationComponentProps = {
   equation: string;
@@ -54,7 +46,7 @@ export default function EquationComponent({
         }
       });
     },
-    [editor, equationValue, nodeKey],
+    [editor, equationValue, nodeKey]
   );
 
   useEffect(() => {
@@ -76,7 +68,7 @@ export default function EquationComponent({
             }
             return false;
           },
-          COMMAND_PRIORITY_HIGH,
+          COMMAND_PRIORITY_HIGH
         ),
         editor.registerCommand(
           KEY_ESCAPE_COMMAND,
@@ -89,11 +81,11 @@ export default function EquationComponent({
             }
             return false;
           },
-          COMMAND_PRIORITY_HIGH,
-        ),
+          COMMAND_PRIORITY_HIGH
+        )
       );
     } else {
-      return editor.registerUpdateListener(({editorState}) => {
+      return editor.registerUpdateListener(({ editorState }) => {
         const isSelected = editorState.read(() => {
           const selection = $getSelection();
           return (

@@ -1,19 +1,10 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as React from "react";
+import { useCallback, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import * as React from 'react';
-import {useCallback, useState} from 'react';
-import {ErrorBoundary} from 'react-error-boundary';
-
-import Button from '../ui/Button';
-import KatexRenderer from './KatexRenderer';
+import Button from "../ui/Button";
+import KatexRenderer from "./KatexRenderer";
 
 type Props = {
   initialEquation?: string;
@@ -22,7 +13,7 @@ type Props = {
 
 export default function KatexEquationAlterer({
   onConfirm,
-  initialEquation = '',
+  initialEquation = "",
 }: Props): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [equation, setEquation] = useState<string>(initialEquation);

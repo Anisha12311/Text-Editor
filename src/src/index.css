@@ -1,14 +1,19 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 @import "https://fonts.googleapis.com/css?family=Reenie+Beanie";
 @import url("https://fonts.googleapis.com/css2?family=Noto+Color+Emoji:wght@300;400;500;600;700;800;900&display=swap");
+ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
 
+ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+ul li,
+ol li {
+  list-style-position: inside;
+}
 body {
   margin: 0;
   font-family:
@@ -57,7 +62,8 @@ header h1 {
   position: relative;
   line-height: 1.7;
   font-weight: 400;
-  width: 100%;
+  width: 68%;
+  min-width: 1050px;
 }
 
 .editor-shell .editor-container {
@@ -84,13 +90,11 @@ header h1 {
   outline: 0;
   z-index: 0;
   overflow: auto;
-  resize: vertical;
 }
 
 .editor {
   flex: auto;
   position: relative;
-  resize: vertical;
   z-index: -1;
 }
 
@@ -724,7 +728,7 @@ i.page-break,
 }
 
 .dropdown {
-  z-index: 100;
+  z-index: 1300;
   display: block;
   position: fixed;
   box-shadow:
@@ -864,6 +868,7 @@ i.page-break,
 .icon.numbered-list,
 .icon.number {
   background-image: url("../src/images/icons/list-ol.svg");
+  list-style: circle;
 }
 
 .icon.quote {
@@ -1057,26 +1062,26 @@ i.page-break,
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-n {
-  top: -6px;
+  top: -2px;
   left: 48%;
   cursor: n-resize;
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-ne {
-  top: -6px;
-  right: -6px;
+  top: -2px;
+  right: -2px;
   cursor: ne-resize;
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-e {
   bottom: 48%;
-  right: -6px;
+  right: -2px;
   cursor: e-resize;
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-se {
   bottom: -2px;
-  right: -6px;
+  right: -2px;
   cursor: nwse-resize;
 }
 
@@ -1088,19 +1093,19 @@ i.page-break,
 
 .editor-shell .editor-image .image-resizer.image-resizer-sw {
   bottom: -2px;
-  left: -6px;
+  left: -2px;
   cursor: sw-resize;
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-w {
   bottom: 48%;
-  left: -6px;
+  left: -2px;
   cursor: w-resize;
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-nw {
-  top: -6px;
-  left: -6px;
+  top: -2px;
+  left: -2px;
   cursor: nw-resize;
 }
 
@@ -1309,6 +1314,7 @@ i.page-break,
   color: #222;
   display: inline-block;
   cursor: pointer;
+  width: 15px;
 }
 
 i.chevron-down {
@@ -1452,6 +1458,7 @@ button.action-button:disabled {
   justify-content: center;
   display: flex;
   align-items: center;
+  padding-right: 15px;
 }
 
 button.toolbar-item {
@@ -1566,7 +1573,6 @@ button.toolbar-item.active i {
 .sticky-note-container {
   position: absolute;
   z-index: 1300;
-  width: 120px;
   display: inline-block;
 }
 

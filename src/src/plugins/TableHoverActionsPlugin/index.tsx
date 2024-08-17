@@ -1,12 +1,4 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $getTableColumnIndexFromTableCellNode,
   $getTableRowIndexFromTableCellNode,
@@ -17,14 +9,14 @@ import {
   TableCellNode,
   TableNode,
   TableRowNode,
-} from '@lexical/table';
-import {$findMatchingParent, mergeRegister} from '@lexical/utils';
-import {$getNearestNodeFromDOMNode, NodeKey} from 'lexical';
-import {useEffect, useRef, useState} from 'react';
-import * as React from 'react';
-import {createPortal} from 'react-dom';
+} from "@lexical/table";
+import { $findMatchingParent, mergeRegister } from "@lexical/utils";
+import { $getNearestNodeFromDOMNode, NodeKey } from "lexical";
+import { useEffect, useRef, useState } from "react";
+import * as React from "react";
+import { createPortal } from "react-dom";
 
-import {useDebounce} from '../CodeActionMenuPlugin/utils';
+import { useDebounce } from "../CodeActionMenuPlugin/utils";
 
 const BUTTON_WIDTH_PX = 20;
 
@@ -44,7 +36,7 @@ function TableHoverActionsContainer({
 
   const debouncedOnMouseMove = useDebounce(
     (event: MouseEvent) => {
-      const {isOutside, tableDOMNode} = getMouseInfo(event);
+      const { isOutside, tableDOMNode } = getMouseInfo(event);
 
       if (isOutside) {
         setShownRow(false);
@@ -67,7 +59,7 @@ function TableHoverActionsContainer({
 
         if ($isTableCellNode(maybeTableCell)) {
           const table = $findMatchingParent(maybeTableCell, (node) =>
-            $isTableNode(node),
+            $isTableNode(node)
           );
           if (!$isTableNode(table)) {
             return;
@@ -104,7 +96,7 @@ function TableHoverActionsContainer({
           height: tableElemHeight,
         } = (tableDOMElement as HTMLTableElement).getBoundingClientRect();
 
-        const {y: editorElemY} = anchorElem.getBoundingClientRect();
+        const { y: editorElemY } = anchorElem.getBoundingClientRect();
 
         if (hoveredRowNode) {
           setShownColumn(false);
@@ -128,7 +120,7 @@ function TableHoverActionsContainer({
       }
     },
     50,
-    250,
+    250
   );
 
   useEffect(() => {
@@ -136,42 +128,38 @@ function TableHoverActionsContainer({
       return;
     }
 
-    document.addEventListener('mousemove', debouncedOnMouseMove);
+    document.addEventListener("mousemove", debouncedOnMouseMove);
 
     return () => {
       setShownRow(false);
       setShownColumn(false);
       debouncedOnMouseMove.cancel();
-      document.removeEventListener('mousemove', debouncedOnMouseMove);
+      document.removeEventListener("mousemove", debouncedOnMouseMove);
     };
   }, [shouldListenMouseMove, debouncedOnMouseMove]);
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerMutationListener(
-        TableNode,
-        (mutations) => {
-          editor.getEditorState().read(() => {
-            for (const [key, type] of mutations) {
-              switch (type) {
-                case 'created':
-                  codeSetRef.current.add(key);
-                  setShouldListenMouseMove(codeSetRef.current.size > 0);
-                  break;
+      editor.registerMutationListener(TableNode, (mutations) => {
+        editor.getEditorState().read(() => {
+          for (const [key, type] of mutations) {
+            switch (type) {
+              case "created":
+                codeSetRef.current.add(key);
+                setShouldListenMouseMove(codeSetRef.current.size > 0);
+                break;
 
-                case 'destroyed':
-                  codeSetRef.current.delete(key);
-                  setShouldListenMouseMove(codeSetRef.current.size > 0);
-                  break;
+              case "destroyed":
+                codeSetRef.current.delete(key);
+                setShouldListenMouseMove(codeSetRef.current.size > 0);
+                break;
 
-                default:
-                  break;
-              }
+              default:
+                break;
             }
-          });
-        },
-    
-      ),
+          }
+        });
+      })
     );
   }, [editor]);
 
@@ -179,7 +167,7 @@ function TableHoverActionsContainer({
     editor.update(() => {
       if (tableDOMNodeRef.current) {
         const maybeTableNode = $getNearestNodeFromDOMNode(
-          tableDOMNodeRef.current,
+          tableDOMNodeRef.current
         );
         maybeTableNode?.selectEnd();
         if (insertRow) {
@@ -197,15 +185,15 @@ function TableHoverActionsContainer({
     <>
       {isShownRow && (
         <button
-          className={'PlaygroundEditorTheme__tableAddRows'}
-          style={{...position}}
+          className={"PlaygroundEditorTheme__tableAddRows"}
+          style={{ ...position }}
           onClick={() => insertAction(true)}
         />
       )}
       {isShownColumn && (
         <button
-          className={'PlaygroundEditorTheme__tableAddColumns'}
-          style={{...position}}
+          className={"PlaygroundEditorTheme__tableAddColumns"}
+          style={{ ...position }}
           onClick={() => insertAction(false)}
         />
       )}
@@ -221,23 +209,23 @@ function getMouseInfo(event: MouseEvent): {
 
   if (target && target instanceof HTMLElement) {
     const tableDOMNode = target.closest<HTMLElement>(
-      'td.PlaygroundEditorTheme__tableCell, th.PlaygroundEditorTheme__tableCell',
+      "td.PlaygroundEditorTheme__tableCell, th.PlaygroundEditorTheme__tableCell"
     );
 
     const isOutside = !(
       tableDOMNode ||
       target.closest<HTMLElement>(
-        'button.PlaygroundEditorTheme__tableAddRows',
+        "button.PlaygroundEditorTheme__tableAddRows"
       ) ||
       target.closest<HTMLElement>(
-        'button.PlaygroundEditorTheme__tableAddColumns',
+        "button.PlaygroundEditorTheme__tableAddColumns"
       ) ||
-      target.closest<HTMLElement>('div.TableCellResizer__resizer')
+      target.closest<HTMLElement>("div.TableCellResizer__resizer")
     );
 
-    return {isOutside, tableDOMNode};
+    return { isOutside, tableDOMNode };
   } else {
-    return {isOutside: true, tableDOMNode: null};
+    return { isOutside: true, tableDOMNode: null };
   }
 }
 
@@ -248,6 +236,6 @@ export default function TableHoverActionsPlugin({
 }): React.ReactPortal | null {
   return createPortal(
     <TableHoverActionsContainer anchorElem={anchorElem} />,
-    anchorElem,
+    anchorElem
   );
 }

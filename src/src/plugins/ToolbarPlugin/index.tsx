@@ -1,11 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import {
   $createCodeNode,
   $isCodeNode,
@@ -25,6 +17,8 @@ import { INSERT_EMBED_COMMAND } from "@lexical/react/LexicalAutoEmbedPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $isDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontalRuleNode";
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -93,14 +87,16 @@ import { InsertPollDialog } from "../PollPlugin";
 import { InsertTableDialog } from "../TablePlugin";
 import FontSize from "./fontSize";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
-import { Box, IconButton, Tooltip } from "@mui/material";
+import { Box, Divider, IconButton, Tooltip } from "@mui/material";
 import { Icons, LightTooltip } from "@/src/themes/Toolbar.styled";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 import CodeIcon from "@mui/icons-material/Code";
 import InsertLinkIcon from "@mui/icons-material/InsertLink";
 // import { InsertGridDialog } from './InsertGrid';
-import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
+import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
+import FormatColorFillRoundedIcon from "@mui/icons-material/FormatColorFillRounded";
+import TextFormatIcon from "@mui/icons-material/TextFormat";
 const blockTypeToBlockName = {
   bullet: "Bulleted List",
   check: "Check List",
@@ -252,9 +248,11 @@ function BlockFormatDropDown({
 
   const formatNumberedList = () => {
     if (blockType !== "number") {
+      console.log("hello ");
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
     } else {
       formatParagraph();
+      console.log("hello test");
     }
   };
 
@@ -364,9 +362,9 @@ function BlockFormatDropDown({
   );
 }
 
-function Divider(): JSX.Element {
-  return <div className="divider" />;
-}
+// function Divider(): JSX.Element {
+//   return <div className="divider" />;
+// }
 
 function FontDropDown({
   editor,
@@ -889,32 +887,29 @@ export default function ToolbarPlugin({
 
   return (
     <div className="toolbar">
-      <button
-        disabled={!canUndo || !isEditable}
+      <Icons
+        isEditable={!(!canUndo || !isEditable)}
         onClick={() => {
           activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        title={IS_APPLE ? "Undo (⌘Z)" : "Undo (Ctrl+Z)"}
-        type="button"
-        className="toolbar-item spaced"
-        aria-label="Undo"
       >
-        <i className="format undo" />
-      </button>
+        <LightTooltip title="Undo (Ctrl+Z)">
+          <UndoIcon sx={{ width: "20px", height: "20px" }} />
+        </LightTooltip>
+      </Icons>
 
-      <button
-        disabled={!canRedo || !isEditable}
+      <Icons
+        isEditable={!(!canRedo || !isEditable)}
         onClick={() => {
           activeEditor.dispatchCommand(REDO_COMMAND, undefined);
         }}
-        title={IS_APPLE ? "Redo (⌘Y)" : "Redo (Ctrl+Y)"}
-        type="button"
-        className="toolbar-item"
-        aria-label="Redo"
       >
-        <i className="format redo" />
-      </button>
-      <Divider />
+        <LightTooltip title="Redo (Ctrl+Y)">
+          <RedoIcon sx={{ width: "20px", height: "20px" }} />
+        </LightTooltip>
+      </Icons>
+
+      <Divider orientation="vertical" flexItem sx={{ marginLeft: "3px" }} />
       {blockType in blockTypeToBlockName && activeEditor === editor && (
         <>
           <BlockFormatDropDown
@@ -955,13 +950,13 @@ export default function ToolbarPlugin({
             value={fontFamily}
             editor={activeEditor}
           />
-          <Divider />
+          <Divider orientation="vertical" flexItem sx={{ marginLeft: "3px" }} />
           <FontSize
             selectionFontSize={fontSize.slice(0, -2)}
             editor={activeEditor}
             disabled={!isEditable}
           />
-          <Divider />
+          <Divider orientation="vertical" flexItem sx={{ marginLeft: "3px" }} />
 
           <Icons
             isEditable={isEditable}
@@ -1016,6 +1011,7 @@ export default function ToolbarPlugin({
               <InsertLinkIcon sx={{ width: "20px", height: "20px" }} />
             </LightTooltip>
           </Icons>
+          <Divider orientation="vertical" flexItem sx={{ marginLeft: "3px" }} />
 
           <DropdownColorPicker
             disabled={!isEditable}
@@ -1025,6 +1021,7 @@ export default function ToolbarPlugin({
             color={fontColor}
             onChange={onFontColorSelect}
             title="text color"
+            Icon={FormatColorTextIcon}
           />
           <DropdownColorPicker
             disabled={!isEditable}
@@ -1034,6 +1031,7 @@ export default function ToolbarPlugin({
             color={bgColor}
             onChange={onBgColorSelect}
             title="bg color"
+            Icon={FormatColorFillRoundedIcon}
           />
           <DropDown
             disabled={!isEditable}
@@ -1041,6 +1039,7 @@ export default function ToolbarPlugin({
             buttonLabel=""
             buttonAriaLabel="Formatting options for additional text styles"
             buttonIconClassName="icon dropdown-more"
+            Icon={TextFormatIcon}
           >
             <DropDownItem
               onClick={() => {

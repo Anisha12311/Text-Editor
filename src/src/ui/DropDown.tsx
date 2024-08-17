@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@mui/material";
 import * as React from "react";
 import {
   ReactNode,
@@ -14,7 +15,7 @@ import { createPortal } from "react-dom";
 type DropDownContextType = {
   registerItem: (ref: React.RefObject<HTMLButtonElement>) => void;
 };
-
+import ArrowDropDownRoundedIcon from "@mui/icons-material/ArrowDropDownRounded";
 const DropDownContext = React.createContext<DropDownContextType | null>(null);
 
 const dropDownPadding = 4;
@@ -144,6 +145,7 @@ export default function DropDown({
   buttonIconClassName,
   children,
   stopCloseOnClickSelf,
+  Icon,
 }: {
   disabled?: boolean;
   buttonAriaLabel?: string;
@@ -152,6 +154,7 @@ export default function DropDown({
   buttonLabel?: string;
   children: ReactNode;
   stopCloseOnClickSelf?: boolean;
+  Icon?: any;
 }): JSX.Element {
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -226,23 +229,54 @@ export default function DropDown({
       document.removeEventListener("scroll", handleButtonPositionUpdate);
     };
   }, [buttonRef, dropDownRef, showDropDown]);
+  function truncateText(text: any, wordLimit: any) {
+    const words = text?.split("");
+    console.log("words", words);
+    if (words?.length > wordLimit) {
+      return words.slice(0, wordLimit).join("") + "...";
+    }
 
+    return text;
+  }
   return (
-    <>
-      <button
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <Button
+        variant="outlined"
         type="button"
         disabled={disabled}
         aria-label={buttonAriaLabel || buttonLabel}
-        className={buttonClassName}
         onClick={() => setShowDropDown(!showDropDown)}
         ref={buttonRef}
+        sx={{
+          color: "#525151",
+          padding: "2px",
+          fontSize: "12px",
+          fontWeight: 600,
+          marginLeft: "10px",
+          "&.MuiButton-outlinedPrimary": {
+            border: "1px solid #e7e2e2",
+            paddingLeft: "10px",
+          },
+          ":hover": {
+            backgroundColor: "#00b7ea",
+            color: "white",
+          },
+        }}
       >
-        {buttonIconClassName && <span className={buttonIconClassName} />}
         {buttonLabel && (
-          <span className="text dropdown-button-text">{buttonLabel}</span>
+          <span
+            style={{
+              paddingLeft: "2px",
+            }}
+          >
+            {truncateText(buttonLabel, 7)}{" "}
+          </span>
         )}
-        {/* <i className="chevron-down" /> */}
-      </button>
+        {Icon && <Icon sx={{ width: "18px", height: "18px" }} />}
+        <ArrowDropDownRoundedIcon />
+      </Button>
+
+      {/* <Button variant="outlined">Primary</Button> */}
 
       {showDropDown &&
         createPortal(
@@ -251,6 +285,6 @@ export default function DropDown({
           </DropDownItems>,
           document.body
         )}
-    </>
+    </div>
   );
 }

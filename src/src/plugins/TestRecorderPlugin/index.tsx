@@ -238,7 +238,7 @@ ${steps.map(formatStep).join(`\n`)}
       if (!isRecording) {
         return;
       }
-      const key = event.key;
+      const key: any = event.key;
       if (isSelectAll(event)) {
         pushStep("selectAll", "");
       } else if (keyPresses.has(key)) {
@@ -254,7 +254,7 @@ ${steps.map(formatStep).join(`\n`)}
       if (!isRecording) {
         return;
       }
-      const key = event.key;
+      const key: any = event.key;
       if (!keyPresses.has(key) && [...key].length > 1) {
         pushStep("keyup", event.key);
       }

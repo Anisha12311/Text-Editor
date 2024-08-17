@@ -87,7 +87,7 @@ function markDeleted(comment: Comment): Comment {
 }
 
 function triggerOnChange(commentStore: CommentStore): void {
-  const listeners = commentStore._changeListeners;
+  const listeners:any = commentStore._changeListeners;
   for (const listener of listeners) {
     listener();
   }

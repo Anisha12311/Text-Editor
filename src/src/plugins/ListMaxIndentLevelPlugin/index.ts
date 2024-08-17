@@ -35,8 +35,7 @@ function $shouldPreventIndent(maxDepth: number): boolean {
     return false;
   }
 
-  const elementNodesInSelection: Set<ElementNode> =
-    getElementNodesInSelection(selection);
+  const elementNodesInSelection: any = getElementNodesInSelection(selection);
 
   let totalDepth = 0;
 

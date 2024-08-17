@@ -567,6 +567,7 @@ i.copy {
 }
 
 i.success {
+  color: green;
   background-image: url("../src/images/icons/success.svg");
 }
 

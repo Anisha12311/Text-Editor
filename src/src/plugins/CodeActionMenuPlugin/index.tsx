@@ -94,7 +94,7 @@ function CodeActionMenuContainer({
   }, [shouldListenMouseMove, debouncedOnMouseMove]);
 
   useEffect(() => {
-    return editor.registerMutationListener(CodeNode, (mutations) => {
+    return editor.registerMutationListener(CodeNode, (mutations: any) => {
       editor.getEditorState().read(() => {
         for (const [key, type] of mutations) {
           switch (type) {

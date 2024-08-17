@@ -23,10 +23,6 @@ export const CAN_USE_BEFORE_INPUT =
 export const IS_SAFARI =
   CAN_USE_DOM && /Version\/[\d.]+.*Safari/.test(navigator.userAgent);
 
-export const IS_IOS =
-  CAN_USE_DOM &&
-  /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-  !window.MSStream;
 
 export const IS_ANDROID =
   CAN_USE_DOM && /Android/.test(navigator.userAgent);

@@ -140,7 +140,7 @@ function TableHoverActionsContainer({
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerMutationListener(TableNode, (mutations) => {
+      editor.registerMutationListener(TableNode, (mutations: any) => {
         editor.getEditorState().read(() => {
           for (const [key, type] of mutations) {
             switch (type) {

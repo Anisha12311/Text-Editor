@@ -33,7 +33,7 @@ export default function InsertLayoutDialog({
     onClose();
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: any) => {
     setLayout(event.target.value);
   };
   return (
